@@ -16,6 +16,9 @@ const codeRatingModel = new Schema({
     },
     codeUrl: {
         type: String
+    },
+    userName: {
+        type: String
     }
 });
 

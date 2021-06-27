@@ -9,4 +9,4 @@ jobs:
         with:
           node-version: '14.x'
       - run: npm install
-      - run: npm run job
+      - run: bash .github/job.sh
