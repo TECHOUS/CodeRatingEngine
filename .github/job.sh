@@ -10,5 +10,6 @@ node .github/job.js
 
 # cleanup
 echo "Cleanup..."
-# rm .env
-# rm -rf HacktoberFest21Community
+rm .env
+rm -rf HacktoberFest21Community
+echo "Cleanup...Done"
