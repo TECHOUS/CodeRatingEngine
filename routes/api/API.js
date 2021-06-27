@@ -1,0 +1,86 @@
+const express = require('express');
+const router = express.Router();
+const {
+    getCodeBaseFilesCount,
+    generateDocumentIndex,
+    getCodeBaseFilesArray,
+    callGithubApiToGetFileContent,
+} = require('../../src/engine');
+
+/**
+ * @endpoint /api/v1/randomCodes
+ * @description api get the randomCodes present in code base
+ * @url http://localhost:5000/api/v1/randomCodes
+ * 
+ * @method GET
+ * @access private
+ * 
+ * @author gaurav
+ **/
+router.get('/randomCodes', async (req, res) => {
+    const count = await getCodeBaseFilesCount();
+    if (count > 0) {
+        let index1 = generateDocumentIndex(count, -1);
+        let index2 = generateDocumentIndex(count, index1);
+        let fileDocuments = await getCodeBaseFilesArray();
+        let content1 = await callGithubApiToGetFileContent(
+            fileDocuments[index1].codeUrl
+        );
+        let content2 = await callGithubApiToGetFileContent(
+            fileDocuments[index2].codeUrl
+        );
+
+        // remove the author from the contents due to security
+        content1 = content1.data.replace(
+            content1.data.substring(
+                content1.data.indexOf('AUTHOR:'),
+                content1.data.indexOf('\n', content1.data.indexOf('AUTHOR:'))
+            ),
+            ''
+        );
+        content2 = content2.data.replace(
+            content2.data.substring(
+                content2.data.indexOf('AUTHOR:'),
+                content2.data.indexOf('\n', content2.data.indexOf('AUTHOR:'))
+            ),
+            ''
+        );
+        res.json({
+            status: 200,
+            codeObject1: {
+                codeId: fileDocuments[index1].codeId,
+                codeRating: fileDocuments[index1].codeRating,
+                codeUrl: fileDocuments[index1].codeUrl,
+                codeName: fileDocuments[index1].codeName,
+                content: content1
+            },
+            codeObject2: {
+                codeId: fileDocuments[index2].codeId,
+                codeRating: fileDocuments[index2].codeRating,
+                codeUrl: fileDocuments[index2].codeUrl,
+                codeName: fileDocuments[index2].codeName,
+                content: content2
+            },
+        });
+    } else {
+        res.status(404).json({
+            status: 404,
+            message: 'Not Found',
+        });
+    }
+});
+
+// update rating
+router.put('/rateCode/:id1/:id2', (req, res) => {
+    res.json({
+        message: `PUT ${req.params.id} API for MERN Boilerplate`,
+    });
+});
+
+router.get('/searchUser', (req, res) => {
+    res.json({
+        message: 'search is working',
+    });
+});
+
+module.exports = router;
