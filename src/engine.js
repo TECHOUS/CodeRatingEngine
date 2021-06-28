@@ -91,11 +91,21 @@ async function rateCodeAndUpdate({codeId1, codeId2, codeRating1, codeRating2, wi
     }
 }
 
+/**
+ * @description return the codeBase files for the user
+ * @author gaurav
+ * @return Promise
+ **/
+function getCodeBaseFileForUser(userName){
+    return codeRatingModel.find({userName})
+}
+
 module.exports = {
     getCodeBaseFilesCount,
     generateDocumentIndex,
     getCodeBaseFilesArray,
     callGithubApiToGetFileContent,
-    rateCodeAndUpdate
+    rateCodeAndUpdate,
+    getCodeBaseFileForUser
 }
 

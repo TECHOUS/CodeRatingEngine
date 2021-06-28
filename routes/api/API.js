@@ -5,7 +5,8 @@ const {
     generateDocumentIndex,
     getCodeBaseFilesArray,
     callGithubApiToGetFileContent,
-    rateCodeAndUpdate
+    rateCodeAndUpdate,
+    getCodeBaseFileForUser
 } = require('../../src/engine');
 
 /**
@@ -15,8 +16,13 @@ const {
  * 
  * @method GET
  * @access private
- * 
  * @author gaurav
+ * @return
+ * {
+ *      status: 200,
+ *      codeObject1: {},
+ *      codeObject2: {}
+ * }
  **/
 router.get('/randomCodes', async (req, res) => {
     const count = await getCodeBaseFilesCount();
@@ -87,31 +93,31 @@ router.get('/randomCodes', async (req, res) => {
  *      "message": ""
  * }
  **/
-router.put('/rateCode/:codeId1/:codeId2',async (req, res) => {
-    const {codeId1, codeId2} = req.params;
-    const {codeRating1, codeRating2, winner} = req.body;
-    
-    if(codeId1===undefined || codeId2===undefined || codeRating1===undefined 
-        || codeRating2===undefined || winner===undefined){
+router.put('/rateCode/:codeId1/:codeId2', async (req, res) => {
+    const { codeId1, codeId2 } = req.params;
+    const { codeRating1, codeRating2, winner } = req.body;
+
+    if (codeId1 === undefined || codeId2 === undefined || codeRating1 === undefined
+        || codeRating2 === undefined || winner === undefined) {
         res.status(400).json({
             status: 400,
             message: 'Invalid request body parameters !!'
         })
-    }else if(winner!==1 && winner!==2){
+    } else if (winner !== 1 && winner !== 2) {
         res.status(400).json({
             status: 400,
             message: 'Winner can be either 1 or 2 only'
         })
-    }else{
+    } else {
         const updateResult = await rateCodeAndUpdate({
             codeId1, codeId2, codeRating1, codeRating2, winner
         })
-        .catch((err)=>{
-            res.status(400).json({
-                status: 400,
-                message: 'Bad Request'
+            .catch((err) => {
+                res.status(400).json({
+                    status: 400,
+                    message: 'Bad Request'
+                })
             })
-        })
 
         updateResult.status = 200;
         updateResult.message = 'Code Ratings updated'
@@ -119,10 +125,64 @@ router.put('/rateCode/:codeId1/:codeId2',async (req, res) => {
     }
 });
 
-router.get('/searchUser', (req, res) => {
-    res.json({
-        message: 'search is working',
-    });
+/**
+ * @endpoint /api/v1/searchUser?username=__
+ * @description search and return the code rating for the specific user
+ * @method GET
+ * @access private
+ * 
+ * @param username
+ * @param sendContent
+ * 
+ * @author gaurav
+ * @return
+ * {
+ *      status: 200,
+ *      userCodeBaseFiles: []
+ * }
+ **/
+router.get('/searchUser', async (req, res) => {
+    const { username, sendContent } = req.query;
+    if (username === undefined) {
+        res.status(400).json({
+            status: 400,
+            message: "Bad Request !! Please send username in the query"
+        })
+    } else {
+        let userCodeBaseFiles = await getCodeBaseFileForUser(username)
+            .catch(err =>
+                res.status(500).json({
+                    status: 500,
+                    err,
+                    message: 'Internal Server Error'
+                })
+            )
+        if (userCodeBaseFiles.length <= 0) {
+            res.status(404).json({
+                status: 404,
+                message: 'No Code Base file found for the respective user'
+            })
+        } else if (sendContent === 'true') {
+            userCodeBaseFiles = userCodeBaseFiles.map(async fileObj => {
+                const content = await callGithubApiToGetFileContent(fileObj._doc.codeUrl);
+                const newFileObject = {
+                    ...fileObj._doc,
+                    content: content.data
+                }
+                return newFileObject
+            })
+            Promise.all(userCodeBaseFiles)
+                .then(data => res.status(200).json({
+                    status: 200,
+                    userCodeBaseFiles: data
+                }))
+        } else {
+            res.status(200).json({
+                status: 200,
+                userCodeBaseFiles
+            });
+        }
+    }
 });
 
 module.exports = router;
