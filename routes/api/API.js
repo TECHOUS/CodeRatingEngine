@@ -5,6 +5,7 @@ const {
     generateDocumentIndex,
     getCodeBaseFilesArray,
     callGithubApiToGetFileContent,
+    rateCodeAndUpdate
 } = require('../../src/engine');
 
 /**
@@ -70,11 +71,52 @@ router.get('/randomCodes', async (req, res) => {
     }
 });
 
-// update rating
-router.put('/rateCode/:id1/:id2', (req, res) => {
-    res.json({
-        message: `PUT ${req.params.id} API for MERN Boilerplate`,
-    });
+/**
+ * @endpoint /api/v1/rateCode/:codeId1/:codeId2
+ * @description API to generate the rating for the winner and update
+ * 
+ * @method PUT
+ * @access private
+ * 
+ * @author gaurav
+ * @return
+ * {
+ *      "update1":{},
+ *      "update2":{},
+ *      "status": 200,
+ *      "message": ""
+ * }
+ **/
+router.put('/rateCode/:codeId1/:codeId2',async (req, res) => {
+    const {codeId1, codeId2} = req.params;
+    const {codeRating1, codeRating2, winner} = req.body;
+    
+    if(codeId1===undefined || codeId2===undefined || codeRating1===undefined 
+        || codeRating2===undefined || winner===undefined){
+        res.status(400).json({
+            status: 400,
+            message: 'Invalid request body parameters !!'
+        })
+    }else if(winner!==1 && winner!==2){
+        res.status(400).json({
+            status: 400,
+            message: 'Winner can be either 1 or 2 only'
+        })
+    }else{
+        const updateResult = await rateCodeAndUpdate({
+            codeId1, codeId2, codeRating1, codeRating2, winner
+        })
+        .catch((err)=>{
+            res.status(400).json({
+                status: 400,
+                message: 'Bad Request'
+            })
+        })
+
+        updateResult.status = 200;
+        updateResult.message = 'Code Ratings updated'
+        res.status(200).json(updateResult);
+    }
 });
 
 router.get('/searchUser', (req, res) => {

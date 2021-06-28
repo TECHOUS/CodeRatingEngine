@@ -54,10 +54,48 @@ function callGithubApiToGetFileContent(url){
     }); 
 }
 
+function updateCodeBaseMongoDocument(codeId, codeRating){
+    mongoose.set('useFindAndModify', false);
+    return codeRatingModel.findOneAndUpdate({codeId},{codeRating},{new: true})
+}
+
+async function rateCodeAndUpdate({codeId1, codeId2, codeRating1, codeRating2, winner}){
+    const K = 24;
+    let expectedCodeRating1 = 1 / (1 + Math.pow(10, (codeRating2 - codeRating1)/400)) 
+    let expectedCodeRating2 = 1 / (1 + Math.pow(10, (codeRating1 - codeRating2)/400))
+
+    if(winner===1){
+        codeRating1 = Math.round(codeRating1 + K*(1-expectedCodeRating1))
+        codeRating2 = Math.round(codeRating2 + K*(0-expectedCodeRating2))
+        
+        const update1 = await updateCodeBaseMongoDocument(codeId1, codeRating1);
+        const update2 = await updateCodeBaseMongoDocument(codeId2, codeRating2);
+
+        return new Promise((resolve, reject)=>{
+            resolve({update1, update2});
+        })
+    }else if(winner===2){
+        codeRating1 = Math.round(codeRating1 + K*(0-expectedCodeRating1))
+        codeRating2 = Math.round(codeRating2 + K*(1-expectedCodeRating2))
+
+        const update1 = await updateCodeBaseMongoDocument(codeId1, codeRating1);
+        const update2 = await updateCodeBaseMongoDocument(codeId2, codeRating2);
+
+        return new Promise((resolve, reject)=>{
+            resolve({update1, update2});
+        })
+    }else{
+        return new Promise((resolve, reject)=>{
+            reject('rejected');
+        })
+    }
+}
+
 module.exports = {
     getCodeBaseFilesCount,
     generateDocumentIndex,
     getCodeBaseFilesArray,
-    callGithubApiToGetFileContent
+    callGithubApiToGetFileContent,
+    rateCodeAndUpdate
 }
 
