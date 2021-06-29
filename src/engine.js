@@ -54,11 +54,30 @@ function callGithubApiToGetFileContent(url){
     }); 
 }
 
+/**
+ * @description find and update the document
+ * @author gaurav
+ * @param codeId codeId to update
+ * @param codeRating rating to update
+ * @return Promise
+ **/
 function updateCodeBaseMongoDocument(codeId, codeRating){
     mongoose.set('useFindAndModify', false);
     return codeRatingModel.findOneAndUpdate({codeId},{codeRating},{new: true})
 }
 
+/**
+ * @description use the elo algorithm and update the rating for the codes according to
+ * the winner
+ * @author gaurav
+ * 
+ * @param codeId1
+ * @param codeId2
+ * @param codeRating1
+ * @param codeRating2
+ * @param winner
+ * @return Promise
+ **/
 async function rateCodeAndUpdate({codeId1, codeId2, codeRating1, codeRating2, winner}){
     const K = 24;
     let expectedCodeRating1 = 1 / (1 + Math.pow(10, (codeRating2 - codeRating1)/400)) 
@@ -94,6 +113,7 @@ async function rateCodeAndUpdate({codeId1, codeId2, codeRating1, codeRating2, wi
 /**
  * @description return the codeBase files for the user
  * @author gaurav
+ * @param userName
  * @return Promise
  **/
 function getCodeBaseFileForUser(userName){
