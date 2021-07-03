@@ -9,13 +9,15 @@ const {
     getCodeBaseFileForUser
 } = require('../../src/engine');
 
+let {cache} = require('../../src/cache');
+
 /**
  * @endpoint /api/v1/randomCodes
  * @description api get the randomCodes present in code base
  * @url http://localhost:5000/api/v1/randomCodes
  * 
  * @method GET
- * @access private
+ * @access public
  * @author gaurav
  * @return
  * {
@@ -25,6 +27,11 @@ const {
  * }
  **/
 router.get('/randomCodes', async (req, res) => {
+    // return the cache data if present
+    if(cache.has('randomCodes') && cache.get('randomCodes').time > Date.now()-30*1000){
+        return res.status(200).json(cache.get('randomCodes').data);
+    }
+
     const count = await getCodeBaseFilesCount();
     if (count > 0) {
         let index1 = generateDocumentIndex(count, -1);
@@ -52,23 +59,30 @@ router.get('/randomCodes', async (req, res) => {
             ),
             ''
         );
-        res.json({
-            status: 200,
-            codeObject1: {
-                codeId: fileDocuments[index1].codeId,
-                codeRating: fileDocuments[index1].codeRating,
-                codeUrl: fileDocuments[index1].codeUrl,
-                codeName: fileDocuments[index1].codeName,
-                content: content1
-            },
-            codeObject2: {
-                codeId: fileDocuments[index2].codeId,
-                codeRating: fileDocuments[index2].codeRating,
-                codeUrl: fileDocuments[index2].codeUrl,
-                codeName: fileDocuments[index2].codeName,
-                content: content2
-            },
-        });
+
+        // setting the cache data with time
+        cache.set('randomCodes', {
+            time: Date.now(),
+            data: {
+                status: 200,
+                codeObject1: {
+                    codeId: fileDocuments[index1].codeId,
+                    codeRating: fileDocuments[index1].codeRating,
+                    codeUrl: fileDocuments[index1].codeUrl,
+                    codeName: fileDocuments[index1].codeName,
+                    content: content1
+                },
+                codeObject2: {
+                    codeId: fileDocuments[index2].codeId,
+                    codeRating: fileDocuments[index2].codeRating,
+                    codeUrl: fileDocuments[index2].codeUrl,
+                    codeName: fileDocuments[index2].codeName,
+                    content: content2
+                }
+            }
+        })
+
+        res.status(200).json(cache.get('randomCodes').data);
     } else {
         res.status(404).json({
             status: 404,
@@ -82,7 +96,7 @@ router.get('/randomCodes', async (req, res) => {
  * @description API to generate the rating for the winner and update
  * 
  * @method PUT
- * @access private
+ * @access public
  * 
  * @author gaurav
  * @return
@@ -129,7 +143,7 @@ router.put('/rateCode/:codeId1/:codeId2', async (req, res) => {
  * @endpoint /api/v1/searchUser?username=__
  * @description search and return the code rating for the specific user
  * @method GET
- * @access private
+ * @access public
  * 
  * @param username
  * @param sendContent
@@ -149,6 +163,13 @@ router.get('/searchUser', async (req, res) => {
             message: "Bad Request !! Please send username in the query"
         })
     } else {
+        // send the cache data according to username and sendContent
+        if(cache.has('c') && cache.get('searchUser').time > Date.now()-30*1000 
+            && cache.get('searchUser').username===username 
+            && cache.get('searchUser').sendContent===sendContent){
+            return res.status(200).json(cache.get('searchUser').data);
+        }
+
         let userCodeBaseFiles = await getCodeBaseFileForUser(username)
             .catch(err =>
                 res.status(500).json({
@@ -172,15 +193,30 @@ router.get('/searchUser', async (req, res) => {
                 return newFileObject
             })
             Promise.all(userCodeBaseFiles)
-                .then(data => res.status(200).json({
-                    status: 200,
-                    userCodeBaseFiles: data
-                }))
+                .then(data => {
+                    // setting the cache
+                    cache.set('searchUser', {
+                        data: {
+                            status: 200,
+                            userCodeBaseFiles: data
+                        },
+                        time: Date.now(),
+                        username,
+                        sendContent
+                    })
+                    res.status(200).json(cache.get('searchUser').data)
+                })
         } else {
-            res.status(200).json({
-                status: 200,
-                userCodeBaseFiles
-            });
+            cache.set('searchUser', {
+                data: {
+                    status: 200,
+                    userCodeBaseFiles
+                },
+                time: Date.now(),
+                username,
+                sendContent
+            })
+            res.status(200).json(cache.get('searchUser').data)
         }
     }
 });
