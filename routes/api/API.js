@@ -6,8 +6,11 @@ const {
     getCodeBaseFilesArray,
     callGithubApiToGetFileContent,
     rateCodeAndUpdate,
-    getCodeBaseFileForUser
+    getCodeBaseFileForUser,
+    generateAndSaveToken,
+    getCodeBaseFilesRating
 } = require('../../src/engine');
+const {authenticateAPI} = require('../../src/auth');
 
 let {cache} = require('../../src/cache');
 
@@ -23,7 +26,8 @@ let {cache} = require('../../src/cache');
  * {
  *      status: 200,
  *      codeObject1: {},
- *      codeObject2: {}
+ *      codeObject2: {},
+ *      accessToken: __
  * }
  **/
 router.get('/randomCodes', async (req, res) => {
@@ -34,6 +38,8 @@ router.get('/randomCodes', async (req, res) => {
 
     const count = await getCodeBaseFilesCount();
     if (count > 0) {
+        // generate and save the token to store
+        const {token} = await generateAndSaveToken();
         let index1 = generateDocumentIndex(count, -1);
         let index2 = generateDocumentIndex(count, index1);
         let fileDocuments = await getCodeBaseFilesArray();
@@ -78,7 +84,8 @@ router.get('/randomCodes', async (req, res) => {
                     codeUrl: fileDocuments[index2].codeUrl,
                     codeName: fileDocuments[index2].codeName,
                     content: content2
-                }
+                },
+                accessToken: token
             }
         })
 
@@ -92,7 +99,7 @@ router.get('/randomCodes', async (req, res) => {
 });
 
 /**
- * @endpoint /api/v1/rateCode/:codeId1/:codeId2
+ * @endpoint /api/v1/rateCode
  * @description API to generate the rating for the winner and update
  * 
  * @method PUT
@@ -107,34 +114,42 @@ router.get('/randomCodes', async (req, res) => {
  *      "message": ""
  * }
  **/
-router.put('/rateCode/:codeId1/:codeId2', async (req, res) => {
-    const { codeId1, codeId2 } = req.params;
-    const { codeRating1, codeRating2, winner } = req.body;
+router.put('/rateCode',authenticateAPI, async (req, res) => {
+    const { codeId1, codeId2, winner } = req.body;
 
-    if (codeId1 === undefined || codeId2 === undefined || codeRating1 === undefined
-        || codeRating2 === undefined || winner === undefined) {
+    if (codeId1 === undefined || codeId2 === undefined || winner === undefined) {
         res.status(400).json({
             status: 400,
-            message: 'Invalid request body parameters !!'
+            message: 'Invalid request parameters !!'
         })
     } else if (winner !== 1 && winner !== 2) {
         res.status(400).json({
             status: 400,
-            message: 'Winner can be either 1 or 2 only'
+            message: 'Winner can either be 1 or 2 only'
         })
     } else {
+        const codeBaseFiles = await getCodeBaseFilesRating(codeId1, codeId2);
+        let codeRating1 = 0;
+        let codeRating2 = 0;
+        codeBaseFiles.map(codeBaseFile => {
+            if(codeBaseFile.codeId===codeId1){
+                codeRating1 = codeBaseFile.codeRating;
+            }else if(codeBaseFile.codeId===codeId2){
+                codeRating2 = codeBaseFile.codeRating;
+            }
+        })
         const updateResult = await rateCodeAndUpdate({
             codeId1, codeId2, codeRating1, codeRating2, winner
         })
             .catch((err) => {
-                res.status(400).json({
+                return res.status(400).json({
                     status: 400,
-                    message: 'Bad Request'
+                    message: 'Bad Request!!!'
                 })
             })
 
         updateResult.status = 200;
-        updateResult.message = 'Code Ratings updated'
+        updateResult.message = 'Code Ratings are updated'
         res.status(200).json(updateResult);
     }
 });
@@ -155,8 +170,9 @@ router.put('/rateCode/:codeId1/:codeId2', async (req, res) => {
  *      userCodeBaseFiles: []
  * }
  **/
-router.get('/searchUser', async (req, res) => {
+router.get('/searchUser',authenticateAPI, async (req, res) => {
     const { username, sendContent } = req.query;
+    
     if (username === undefined) {
         res.status(400).json({
             status: 400,

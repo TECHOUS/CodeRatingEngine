@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const codeRatingModel = require('../models/codeRatingModel');
+const accessTokenModel = require('../models/accessToken');
 const { default: axios } = require('axios');
+const { v4: uuidv4 } = require('uuid');
 
 mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex: true});
 const db = mongoose.connection;
@@ -120,12 +122,58 @@ function getCodeBaseFileForUser(userName){
     return codeRatingModel.find({userName})
 }
 
+/**
+ * @description return the codeBase files for the codeIds
+ * @author gaurav
+ * @param codeId1
+ * @param codeId2
+ * @return Promise
+ **/
+function getCodeBaseFilesRating(codeId1, codeId2){
+    return codeRatingModel.find({codeId: {$in:[codeId1,codeId2]}})
+}
+
+/**
+ * @description method to generate random access tokens
+ * @author gaurav
+ * @return access token
+ **/
+function generateRandomToken(){
+    return uuidv4();
+}
+
+/**
+ * @description method to generate and save the token to mongodb
+ * @author gaurav
+ * @return Promise
+ **/
+function generateAndSaveToken(){
+    const token = generateRandomToken();
+    const tokenDocument = new accessTokenModel({
+        token,
+        timestamp: Date.now()
+    })
+    return tokenDocument.save();
+}
+
+/**
+ * @description find the token in the mongo
+ * @author gaurav
+ * @return Promise
+ **/
+function validateToken(token){
+    return accessTokenModel.find({token})
+}
+
 module.exports = {
     getCodeBaseFilesCount,
     generateDocumentIndex,
     getCodeBaseFilesArray,
     callGithubApiToGetFileContent,
     rateCodeAndUpdate,
-    getCodeBaseFileForUser
+    getCodeBaseFileForUser,
+    generateAndSaveToken,
+    validateToken,
+    getCodeBaseFilesRating
 }
 
