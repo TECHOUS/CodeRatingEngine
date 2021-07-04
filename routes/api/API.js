@@ -32,7 +32,7 @@ let {cache} = require('../../src/cache');
  **/
 router.get('/randomCodes', async (req, res) => {
     // return the cache data if present
-    if(cache.has('randomCodes') && cache.get('randomCodes').time > Date.now()-30*1000){
+    if(cache.has('randomCodes') && cache.get('randomCodes').time > Date.now()-process.env.CACHE_STORAGE_SECONDS*1000){
         return res.status(200).json(cache.get('randomCodes').data);
     }
 
@@ -180,7 +180,7 @@ router.get('/searchUser',authenticateAPI, async (req, res) => {
         })
     } else {
         // send the cache data according to username and sendContent
-        if(cache.has('c') && cache.get('searchUser').time > Date.now()-30*1000 
+        if(cache.has('searchUser') && cache.get('searchUser').time > Date.now()-process.env.CACHE_STORAGE_SECONDS*1000 
             && cache.get('searchUser').username===username 
             && cache.get('searchUser').sendContent===sendContent){
             return res.status(200).json(cache.get('searchUser').data);

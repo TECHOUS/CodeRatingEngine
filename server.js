@@ -4,10 +4,13 @@ const rateLimit = require("express-rate-limit");
 
 const app = express();
 
+// exclusing dotenv config from production
+if (process.env.NODE_ENV !== 'production') require('dotenv').config()
+
 // setting up the rate limiter
 const rateLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000,    // 1 minute
-    max: 10,
+    windowMs: process.env.RATE_LIMIT_MINUTES * 60 * 1000,    // 1 minute
+    max: process.env.RATE_LIMIT_MAX_REQUEST,
     message: {
         status: 429,
         error: "Too many requests, please try again later!!!"
@@ -20,9 +23,6 @@ app.set('trust proxy', 1);
 
 // rate limiting middleware
 app.use(rateLimiter);
-
-// exclusing dotenv config from production
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 
 // CORS Middleware
 app.use(cors());
