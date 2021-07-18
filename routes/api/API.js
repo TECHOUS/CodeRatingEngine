@@ -17,8 +17,9 @@ let {cache} = require('../../src/cache');
 /**
  * @endpoint /api/v1/randomCodes
  * @description api get the randomCodes present in code base
+ * @copyright TECHOUS
+ * @since 28 June 2021
  * @url http://localhost:5000/api/v1/randomCodes
- * 
  * @method GET
  * @access public
  * @author gaurav
@@ -101,9 +102,10 @@ router.get('/randomCodes', async (req, res) => {
 /**
  * @endpoint /api/v1/rateCode
  * @description API to generate the rating for the winner and update
- * 
+ * @copyright TECHOUS
+ * @since 4 July 2021
  * @method PUT
- * @access public
+ * @access private
  * 
  * @author gaurav
  * @return
@@ -157,8 +159,10 @@ router.put('/rateCode',authenticateAPI, async (req, res) => {
 /**
  * @endpoint /api/v1/searchUser?username=__
  * @description search and return the code rating for the specific user
+ * @copyright TECHOUS
+ * @since 4 July 2021
  * @method GET
- * @access public
+ * @access private
  * 
  * @param username
  * @param sendContent
