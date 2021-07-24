@@ -1,0 +1,16 @@
+{
+    "version": 2,
+    "builds":[
+        {
+            "src": "./bin/www",
+            "use": "@vercel/node",
+            "config": { "includeFiles": ["**"] }
+        }
+    ],
+    "routes":[
+        {
+            "src": "/(.*)",
+            "dest": "bin/www"
+        }
+    ]
+}

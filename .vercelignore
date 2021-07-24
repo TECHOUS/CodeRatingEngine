@@ -1,0 +1,9 @@
+# Ignore files for vercel
+
+.github
+node_modules
+test
+.env
+.gitignore
+README.md
+HacktoberFest21Community

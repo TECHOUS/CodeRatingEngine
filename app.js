@@ -36,11 +36,4 @@ app.use(express.urlencoded({extended: false}));
 // middleware for handling sample api routes
 app.use('/api/v1', require('./routes/api/API'));
 
-// use port from environment variables for production
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT,()=>{
-    console.log(`server running on port ${PORT}`);
-})
-
 module.exports = app;
