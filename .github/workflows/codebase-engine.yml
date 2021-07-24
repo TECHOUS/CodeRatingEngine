@@ -12,3 +12,8 @@ jobs:
           node-version: '14.x'
       - run: npm install
       - run: bash .github/job.sh
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      RATE_LIMIT_MINUTES: ${{ secrets.RATE_LIMIT_MINUTES }}
+      RATE_LIMIT_MAX_REQUEST: ${{ secrets.RATE_LIMIT_MAX_REQUEST }}
+      CACHE_STORAGE_SECONDS: ${{ secrets.CACHE_STORAGE_SECONDS }}
