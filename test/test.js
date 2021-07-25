@@ -14,7 +14,6 @@ describe('testing the code rating engine APIs',() => {
             token = res.body.accessToken;
             codeId1 = res.body.codeObject1.codeId;
             codeId2 = res.body.codeObject2.codeId;
-            return res;
         }catch(err){
             console.log(err)
         }
