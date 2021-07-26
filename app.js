@@ -1,11 +1,13 @@
-const express = require('express');
-const cors = require('cors');
-const rateLimit = require("express-rate-limit");
+import express from 'express';
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import API from './routes/api/API';
+// import dotenv from 'dotenv';
 
 const app = express();
 
 // exclusing dotenv config from production
-if (process.env.NODE_ENV !== 'production') require('dotenv').config()
+// if (process.env.NODE_ENV !== 'production') dotenv.config()
 
 // setting up the rate limiter
 const rateLimiter = rateLimit({
@@ -34,6 +36,6 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
 // middleware for handling sample api routes
-app.use('/api/v1', require('./routes/api/API'));
+app.use('/api/v1', API);
 
-module.exports = app;
+export default app;

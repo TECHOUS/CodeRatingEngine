@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
@@ -22,4 +22,4 @@ const codeRatingModel = new Schema({
     }
 });
 
-module.exports = mongoose.model('codeRating',codeRatingModel);
+export default mongoose.model('codeRating',codeRatingModel);

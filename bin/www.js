@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const app = require('../app');
+import app from '../app';
 
 // use port from environment variables for production
 const PORT = process.env.PORT || 5000;

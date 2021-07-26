@@ -9,4 +9,4 @@ cache.set('searchUser', {
     username: ""
 })
 
-module.exports = { cache };
+export {cache}

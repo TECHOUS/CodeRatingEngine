@@ -7,10 +7,11 @@
   },
   "description": "Engine to handle the rating mechanisms for the clean code",
   "main": "bin/www",
+  "type": "module",
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
-    "test": "mocha --exit --timeout 15000"
+    "start": "node --es-module-specifier-resolution=node ./bin/www",
+    "test": "mocha --es-module-specifier-resolution=node -r dotenv/config --exit --timeout 15000",
+    "dev": "nodemon --es-module-specifier-resolution=node -r dotenv/config ./bin/www"
   },
   "author": "Gaurav Walia",
   "license": "ISC",

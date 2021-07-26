@@ -1,4 +1,4 @@
-const {validateToken} = require('./engine');
+export {validateToken} from './engine';
 
 async function authenticateAPI(req, res, next){
     const { codeRatingEngineToken } = req.body;
@@ -21,6 +21,6 @@ async function authenticateAPI(req, res, next){
     }
 }
 
-module.exports = {
+export {
     authenticateAPI
-}
+} 

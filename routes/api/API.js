@@ -1,6 +1,5 @@
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
     getCodeBaseFilesCount,
     generateDocumentIndex,
     getCodeBaseFilesArray,
@@ -9,10 +8,11 @@ const {
     getCodeBaseFileForUser,
     generateAndSaveToken,
     getCodeBaseFilesRating
-} = require('../../src/engine');
-const {authenticateAPI} = require('../../src/auth');
+} from '../../src/engine';
+import {authenticateAPI} from '../../src/auth';
+import {cache} from '../../src/cache';
 
-let {cache} = require('../../src/cache');
+const router = express.Router();
 
 /**
  * @endpoint /api/v1/randomCodes
@@ -241,4 +241,4 @@ router.get('/searchUser',authenticateAPI, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
@@ -13,4 +13,4 @@ const accessTokenModel = new Schema({
     }
 })
 
-module.exports = mongoose.model('accessToken', accessTokenModel);
+export default mongoose.model('accessToken', accessTokenModel);

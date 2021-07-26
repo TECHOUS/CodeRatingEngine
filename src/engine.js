@@ -1,10 +1,12 @@
-const mongoose = require('mongoose');
-const codeRatingModel = require('../models/codeRatingModel');
-const accessTokenModel = require('../models/accessToken');
-const { default: axios } = require('axios');
-const { v4: uuidv4 } = require('uuid');
+import mongoose from 'mongoose';
+import codeRatingModel from '../models/codeRatingModel';
+import accessTokenModel from '../models/accessToken'; 
+import axios from 'axios';
+import {v4 as uuidv4} from 'uuid';
 
-mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex: true});
+mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true,useUnifiedTopology: true,useCreateIndex: true})
+.then(()=>console.log("MongoDB connected Successfully"))
+.catch((err)=>console.log(err));
 const db = mongoose.connection;
 db.on('error',console.error.bind(console, 'Connection error:'));
 
@@ -165,7 +167,7 @@ function validateToken(token){
     return accessTokenModel.find({token})
 }
 
-module.exports = {
+export {
     getCodeBaseFilesCount,
     generateDocumentIndex,
     getCodeBaseFilesArray,
