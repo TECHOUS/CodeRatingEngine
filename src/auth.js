@@ -1,4 +1,4 @@
-export {validateToken} from './engine';
+import {validateToken} from './engine';
 
 async function authenticateAPI(req, res, next){
     const { codeRatingEngineToken } = req.body;

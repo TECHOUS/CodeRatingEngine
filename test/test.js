@@ -6,7 +6,7 @@ describe('testing the code rating engine APIs',() => {
     let codeId1 = "";
     let codeId2 = "";
     const SEARCH_USER = "GauravWalia19"; 
-    beforeEach('get the random codes with token', async () => {
+    before('get the random codes with token', async () => {
         try{
             const res = await request(app)
             .get('/api/v1/randomCodes')

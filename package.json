@@ -10,8 +10,9 @@
   "type": "module",
   "scripts": {
     "start": "node --es-module-specifier-resolution=node ./bin/www",
-    "test": "mocha --es-module-specifier-resolution=node -r dotenv/config --exit --timeout 15000",
-    "dev": "nodemon --es-module-specifier-resolution=node -r dotenv/config ./bin/www"
+    "mytests": "node --es-module-specifier-resolution=node -r dotenv/config mytests/coderatingtest",
+    "dev": "nodemon --es-module-specifier-resolution=node -r dotenv/config ./bin/www",
+    "test": "mocha --es-module-specifier-resolution=node -r dotenv/config --exit --timeout 15000"
   },
   "author": "Gaurav Walia",
   "license": "ISC",
@@ -24,8 +25,9 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@techous/rainbowjs": "^1.0.1",
     "dotenv": "^10.0.0",
-    "mocha": "^9.0.2",
+    "mocha": "^9.0.3",
     "nodemon": "^2.0.12",
     "supertest": "^6.1.3"
   }
