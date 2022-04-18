@@ -5,7 +5,7 @@ let ratingC2 = 100
 const K = 24
 
 let expectedRatingC1 = 1 / (1 + Math.pow(10, (ratingC2 - ratingC1) / 400))
-let expectedRatingC2 = 1 / (1 + Math.pow(10, (ratingC1 - ratingC2) / 400))
+        let expectedRatingC2 = 1 / (1 + Math.pow(10, (ratingC1 - ratingC2) / 400))
 
 console.log(expectedRatingC1)
 console.log(expectedRatingC2)
