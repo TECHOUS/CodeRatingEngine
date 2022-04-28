@@ -11,8 +11,14 @@ const {
     getCodeBaseFilesRating,
 } = require('../../src/engine')
 const {authenticateAPI} = require('../../src/auth')
-
-let {cache} = require('../../src/cache')
+const {
+    checkRandomCodesCacheExpiry,
+    getRandomCodesFromCache,
+    setRandomCodesInCache,
+    checkSearchUserCacheExpiry,
+    getSearchUserFromCache,
+    setSearchUserInCache
+} = require('../../src/cache')
 
 /**
  * @endpoint /api/v1/randomCodes
@@ -33,12 +39,8 @@ let {cache} = require('../../src/cache')
  **/
 router.get('/randomCodes', async (req, res) => {
     // return the cache data if present
-    if (
-        cache.has('randomCodes') &&
-        cache.get('randomCodes').time >
-            Date.now() - process.env.CACHE_STORAGE_SECONDS * 1000
-    ) {
-        return res.status(200).json(cache.get('randomCodes').data)
+    if (checkRandomCodesCacheExpiry()) {
+        return res.status(200).json(getRandomCodesFromCache())
     }
 
     const count = await getCodeBaseFilesCount()
@@ -72,7 +74,7 @@ router.get('/randomCodes', async (req, res) => {
         )
 
         // setting the cache data with time
-        cache.set('randomCodes', {
+        setRandomCodesInCache({
             time: Date.now(),
             data: {
                 status: 200,
@@ -94,7 +96,7 @@ router.get('/randomCodes', async (req, res) => {
             },
         })
 
-        res.status(200).json(cache.get('randomCodes').data)
+        res.status(200).json(getRandomCodesFromCache())
     } else {
         res.status(404).json({
             status: 404,
@@ -195,14 +197,8 @@ router.get('/searchUser', authenticateAPI, async (req, res) => {
         })
     } else {
         // send the cache data according to username and sendContent
-        if (
-            cache.has('searchUser') &&
-            cache.get('searchUser').time >
-                Date.now() - process.env.CACHE_STORAGE_SECONDS * 1000 &&
-            cache.get('searchUser').username === username &&
-            cache.get('searchUser').sendContent === sendContent
-        ) {
-            return res.status(200).json(cache.get('searchUser').data)
+        if (checkSearchUserCacheExpiry(username, sendContent)) {
+            return res.status(200).json(getSearchUserFromCache())
         }
 
         let userCodeBaseFiles = await getCodeBaseFileForUser(username).catch(
@@ -231,7 +227,7 @@ router.get('/searchUser', authenticateAPI, async (req, res) => {
             })
             Promise.all(userCodeBaseFiles).then((data) => {
                 // setting the cache
-                cache.set('searchUser', {
+                setSearchUserInCache({
                     data: {
                         status: 200,
                         userCodeBaseFiles: data,
@@ -240,10 +236,10 @@ router.get('/searchUser', authenticateAPI, async (req, res) => {
                     username,
                     sendContent,
                 })
-                res.status(200).json(cache.get('searchUser').data)
+                res.status(200).json(getSearchUserFromCache())
             })
         } else {
-            cache.set('searchUser', {
+            setSearchUserInCache({
                 data: {
                     status: 200,
                     userCodeBaseFiles,
@@ -252,7 +248,7 @@ router.get('/searchUser', authenticateAPI, async (req, res) => {
                 username,
                 sendContent,
             })
-            res.status(200).json(cache.get('searchUser').data)
+            res.status(200).json(getSearchUserFromCache())
         }
     }
 })
