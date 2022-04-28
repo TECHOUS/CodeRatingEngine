@@ -1,0 +1,11 @@
+# ignore files for prettier
+
+.github/workflows
+.vercel
+node_modules
+.env
+.gitignore
+.vercelignore
+README.md
+vercel.json
+yarn.lock

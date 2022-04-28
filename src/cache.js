@@ -1,12 +1,12 @@
 let cache = new Map()
 cache.set('randomCodes', {
-    data: "",
-    time: ""
+    data: '',
+    time: '',
 })
 cache.set('searchUser', {
-    data: "",
-    time: "",
-    username: ""
+    data: '',
+    time: '',
+    username: '',
 })
 
-module.exports = { cache };
+module.exports = {cache}
