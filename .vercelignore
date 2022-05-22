@@ -5,5 +5,7 @@ node_modules
 test
 .env
 .gitignore
+.prettierignore
+.prettierrc.json
 README.md
-HacktoberFest21Community
+coderatefest

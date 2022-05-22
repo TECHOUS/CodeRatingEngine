@@ -1,42 +1,42 @@
 {
-  "name": "coderatingengine",
-  "version": "1.0.0",
-  "engines": {
-    "node": "14.x",
-    "yarn": "1.x"
-  },
-  "description": "Engine to handle the rating mechanisms for the clean code",
-  "main": "bin/www",
-  "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
-    "test": "mocha --exit --timeout 15000"
-  },
-  "author": "Gaurav Walia",
-  "license": "ISC",
-  "dependencies": {
-    "axios": "^0.21.1",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "express-rate-limit": "^5.3.0",
-    "mongoose": "^5.13.3",
-    "uuid": "^8.3.2"
-  },
-  "devDependencies": {
-    "dotenv": "^10.0.0",
-    "husky": "^7.0.4",
-    "lint-staged": "^12.3.8",
-    "mocha": "^9.0.2",
-    "nodemon": "^2.0.12",
-    "prettier": "^2.6.2",
-    "supertest": "^6.1.3"
-  },
-  "lint-staged": {
-    "*.js": "prettier --write"
-  },
-  "husky":{
-    "hooks": {
-      "pre-commit": "lint-staged"
+    "name": "coderatingengine",
+    "version": "1.0.0",
+    "engines": {
+        "node": "16.x",
+        "yarn": "1.x"
+    },
+    "description": "Engine to handle the rating mechanisms for the clean code",
+    "main": "bin/www",
+    "scripts": {
+        "start": "node ./bin/www",
+        "dev": "nodemon ./bin/www",
+        "test": "mocha --exit --timeout 15000"
+    },
+    "author": "Gaurav Walia",
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^0.21.1",
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "express-rate-limit": "^5.3.0",
+        "mongoose": "^5.13.3",
+        "uuid": "^8.3.2"
+    },
+    "devDependencies": {
+        "dotenv": "^10.0.0",
+        "husky": "^7.0.4",
+        "lint-staged": "^12.3.8",
+        "mocha": "^9.0.2",
+        "nodemon": "^2.0.12",
+        "prettier": "^2.6.2",
+        "supertest": "^6.1.3"
+    },
+    "lint-staged": {
+        "*.js": "prettier --write"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
     }
-  }
 }

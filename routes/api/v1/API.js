@@ -9,16 +9,18 @@ const {
     getCodeBaseFileForUser,
     generateAndSaveToken,
     getCodeBaseFilesRating,
-} = require('../../src/engine')
-const {authenticateAPI} = require('../../src/auth')
+} = require('../../../src/engine')
 const {
     checkRandomCodesCacheExpiry,
     getRandomCodesFromCache,
     setRandomCodesInCache,
     checkSearchUserCacheExpiry,
     getSearchUserFromCache,
-    setSearchUserInCache
-} = require('../../src/cache')
+    setSearchUserInCache,
+} = require('../../../src/cache')
+// import middlewares
+const {authenticateAPI} = require('../../../src/auth')
+const {updateValidator, searchValidator} = require('../../../src/validator')
 
 /**
  * @endpoint /api/v1/randomCodes
@@ -122,51 +124,35 @@ router.get('/randomCodes', async (req, res) => {
  *      "message": ""
  * }
  **/
-router.put('/rateCode', authenticateAPI, async (req, res) => {
+router.put('/rateCode', authenticateAPI, updateValidator, async (req, res) => {
     const {codeId1, codeId2, winner} = req.body
 
-    if (
-        codeId1 === undefined ||
-        codeId2 === undefined ||
-        winner === undefined
-    ) {
-        res.status(400).json({
+    const codeBaseFiles = await getCodeBaseFilesRating(codeId1, codeId2)
+    let codeRating1 = 0
+    let codeRating2 = 0
+    codeBaseFiles.map((codeBaseFile) => {
+        if (codeBaseFile.codeId === codeId1) {
+            codeRating1 = codeBaseFile.codeRating
+        } else if (codeBaseFile.codeId === codeId2) {
+            codeRating2 = codeBaseFile.codeRating
+        }
+    })
+    const updateResult = await rateCodeAndUpdate({
+        codeId1,
+        codeId2,
+        codeRating1,
+        codeRating2,
+        winner,
+    }).catch((err) => {
+        return res.status(400).json({
             status: 400,
-            message: 'Invalid request parameters !!',
+            message: 'Bad Request!!!',
         })
-    } else if (winner !== 1 && winner !== 2) {
-        res.status(400).json({
-            status: 400,
-            message: 'Winner can either be 1 or 2 only',
-        })
-    } else {
-        const codeBaseFiles = await getCodeBaseFilesRating(codeId1, codeId2)
-        let codeRating1 = 0
-        let codeRating2 = 0
-        codeBaseFiles.map((codeBaseFile) => {
-            if (codeBaseFile.codeId === codeId1) {
-                codeRating1 = codeBaseFile.codeRating
-            } else if (codeBaseFile.codeId === codeId2) {
-                codeRating2 = codeBaseFile.codeRating
-            }
-        })
-        const updateResult = await rateCodeAndUpdate({
-            codeId1,
-            codeId2,
-            codeRating1,
-            codeRating2,
-            winner,
-        }).catch((err) => {
-            return res.status(400).json({
-                status: 400,
-                message: 'Bad Request!!!',
-            })
-        })
+    })
 
-        updateResult.status = 200
-        updateResult.message = 'Code Ratings are updated'
-        res.status(200).json(updateResult)
-    }
+    updateResult.status = 200
+    updateResult.message = 'Code Ratings are updated'
+    res.status(200).json(updateResult)
 })
 
 /**
@@ -187,15 +173,13 @@ router.put('/rateCode', authenticateAPI, async (req, res) => {
  *      userCodeBaseFiles: []
  * }
  **/
-router.get('/searchUser', authenticateAPI, async (req, res) => {
-    const {username, sendContent} = req.query
+router.get(
+    '/searchUser',
+    authenticateAPI,
+    searchValidator,
+    async (req, res) => {
+        const {username, sendContent} = req.query
 
-    if (username === undefined) {
-        res.status(400).json({
-            status: 400,
-            message: 'Bad Request !! Please send username in the query',
-        })
-    } else {
         // send the cache data according to username and sendContent
         if (checkSearchUserCacheExpiry(username, sendContent)) {
             return res.status(200).json(getSearchUserFromCache())
@@ -251,6 +235,6 @@ router.get('/searchUser', authenticateAPI, async (req, res) => {
             res.status(200).json(getSearchUserFromCache())
         }
     }
-})
+)
 
 module.exports = router

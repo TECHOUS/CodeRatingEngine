@@ -3,6 +3,8 @@ const codeRatingModel = require('../models/codeRatingModel')
 const mongoose = require('mongoose')
 const fs = require('fs')
 
+require('dotenv').config()
+
 // function to read the code file and sends the username in callback function
 const getUserNameFromCodeBaseFile = (fileName) => {
     return new Promise((resolve, reject) => {
@@ -27,7 +29,6 @@ const getUserNameFromCodeBaseFile = (fileName) => {
 
 // function to connect to mongodb using mongoose
 const connectMongoDB = () => {
-    require('dotenv').config()
     mongoose.connect(process.env.MONGODB_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -58,13 +59,13 @@ const insertDataInMongo = (records) => {
 const callGithubCodeBaseAPI = () => {
     axios
         .get(
-            'https://api.github.com/repos/TechOUs/HacktoberFest21Community/contents/CodeBase'
+            `https://api.github.com/repos/TECHOUS/${process.env.CODE_SRC}/contents/CodeBase`
         )
         .then((res) => {
             // get all the names from the files
             const filePromises = res.data.map((codeObject) => {
                 return getUserNameFromCodeBaseFile(
-                    `HacktoberFest21Community/${codeObject.path}`
+                    `${process.env.CODE_SRC}/${codeObject.path}`
                 )
             })
 
