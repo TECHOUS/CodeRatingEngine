@@ -8,5 +8,7 @@ node .github/job.js
 
 # cleanup
 echo "Cleanup..."
+
 rm -rf $CODE_SRC
+
 echo "Cleanup...Done"
