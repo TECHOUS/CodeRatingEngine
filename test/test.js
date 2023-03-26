@@ -1,5 +1,5 @@
 const request = require('supertest')
-const app = require('../app')
+const app = require('../api/app')
 
 describe('testing the code rating engine APIs', () => {
     let token = ''
