@@ -1,11 +1,11 @@
-name: Vercel Deployment
+name: Vercel Dev Deployment
 on: 
   pull_request:
     branches:
-      - master
+      - dev
   push:
     branches:
-      - master
+      - dev
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -29,7 +29,6 @@ jobs:
       - uses: amondnet/vercel-action@v20
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
-          vercel-args: '--prod' #Optional
           vercel-org-id: ${{ secrets.ORG_ID}}  #Required
           vercel-project-id: ${{ secrets.PROJECT_ID}} #Required 
           working-directory: .
