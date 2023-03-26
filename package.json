@@ -2,15 +2,16 @@
     "name": "coderatingengine",
     "version": "1.0.0",
     "engines": {
-        "node": "16.x",
+        "node": "18.x",
         "yarn": "1.x"
     },
     "description": "Engine to handle the rating mechanisms for the clean code",
-    "main": "bin/www",
+    "main": "bin/www.js",
     "scripts": {
-        "start": "node ./bin/www",
-        "dev": "nodemon ./bin/www",
-        "test": "mocha --exit --timeout 15000"
+        "start": "node ./bin/www.js",
+        "dev": "nodemon ./bin/www.js",
+        "test": "mocha --exit --timeout 15000",
+        "build": "yarn install"
     },
     "author": "Gaurav Walia",
     "license": "ISC",

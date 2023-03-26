@@ -1,19 +1,7 @@
 {
-    "version": 2,
     "github": {
         "enabled": false
     },
-    "builds":[
-        {
-            "src": "./bin/www",
-            "use": "@vercel/node",
-            "config": { "includeFiles": ["**"] }
-        }
-    ],
-    "routes":[
-        {
-            "src": "/(.*)",
-            "dest": "bin/www"
-        }
-    ]
+    "rewrites": [{ "source": "/api/(.*)", "destination": "/api/app.js" }],
+    "outputDirectory": "./api"
 }

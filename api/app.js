@@ -34,6 +34,6 @@ app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 
 // middleware for handling sample api routes
-app.use('/api/v1', require('./routes/api/v1/API'))
+app.use('/api/v1', require('../routes/api/v1/API'))
 
 module.exports = app
