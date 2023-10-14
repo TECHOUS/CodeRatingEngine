@@ -27,9 +27,10 @@ const rateLimiter = rateLimit({
 // see https://expressjs.com/en/guide/behind-proxies.html
 app.set('trust proxy', 1)
 
-app.get('/', (req, res) => {
-    res.sendFile('index.html', {root: path.join(__dirname, '../public')})
-})
+app.use(express.static(path.join(__dirname, 'public')))
+// app.get('/', (req, res) => {
+//     res.sendFile('index.html', {root: path.join(__dirname, 'public')})
+// })
 
 // rate limiting middleware
 app.use(rateLimiter)
