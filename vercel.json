@@ -3,7 +3,7 @@
         "enabled": false
     },
     "rewrites": [
-        { "source": "/api/(.*)", "destination": "/api/app.js" }
+        { "source": "/(.*)", "destination": "/api/app.js" }
     ],
     "outputDirectory": "./api"
 }
