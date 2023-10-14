@@ -7,6 +7,7 @@ describe('testing the code rating engine APIs', () => {
     let codeId2 = ''
     const SEARCH_USER = 'GauravWalia19'
     beforeEach('get the random codes with token', async () => {
+        console.log('getting the token')
         try {
             const res = await request(app)
                 .get('/api/v1/randomCodes')
@@ -15,7 +16,7 @@ describe('testing the code rating engine APIs', () => {
             codeId1 = res.body.codeObject1.codeId
             codeId2 = res.body.codeObject2.codeId
         } catch (err) {
-            console.log(err)
+            console.log('Error in getting random codes', err)
         }
     })
 

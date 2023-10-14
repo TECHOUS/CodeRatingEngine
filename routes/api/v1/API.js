@@ -149,7 +149,6 @@ router.put('/rateCode', authenticateAPI, updateValidator, async (req, res) => {
             message: 'Bad Request!!!',
         })
     })
-
     updateResult.status = 200
     updateResult.message = 'Code Ratings are updated'
     res.status(200).json(updateResult)
