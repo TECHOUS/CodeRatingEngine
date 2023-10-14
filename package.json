@@ -11,7 +11,8 @@
         "start": "node ./bin/www.js",
         "dev": "nodemon ./bin/www.js",
         "test": "mocha --exit --timeout 60000",
-        "build": "yarn install"
+        "build": "yarn install",
+        "generate-docs": "apidoc -c ./apidoc.json -i ./routes/api/v1 -o ./docs"
     },
     "author": "Gaurav Walia",
     "license": "ISC",
@@ -24,6 +25,7 @@
         "uuid": "^9.0.1"
     },
     "devDependencies": {
+        "apidoc": "^1.2.0",
         "dotenv": "^16.3.1",
         "husky": "^8.0.3",
         "lint-staged": "^14.0.1",

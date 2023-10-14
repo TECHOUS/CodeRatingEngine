@@ -1,6 +1,11 @@
 const express = require('express')
 const cors = require('cors')
 const rateLimit = require('express-rate-limit')
+const {
+    badRequestHandler,
+    requestMethodHandler,
+    internalServerErrorHandler,
+} = require('../src/errorHandler')
 
 const app = express()
 
@@ -33,7 +38,17 @@ app.use(express.json())
 // express middleware handling the form parsing
 app.use(express.urlencoded({extended: false}))
 
+// middleware to handle wrong method types
+app.use(requestMethodHandler)
+
 // middleware for handling sample api routes
 app.use('/api/v1', require('../routes/api/v1/API'))
+app.use(express.static('docs'))
+
+// middleware to handle internal server errors due to implementation
+app.use(internalServerErrorHandler)
+
+// middleware to handle bad requests
+app.use(badRequestHandler)
 
 module.exports = app
