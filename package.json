@@ -12,7 +12,7 @@
         "dev": "nodemon ./bin/www.js",
         "test": "mocha --exit --timeout 60000",
         "build": "yarn install",
-        "generate-docs": "apidoc -c ./apidoc.json -i ./routes/api/v1 -o ./docs"
+        "generate-docs": "apidoc -c ./apidoc.json -i ./routes/api/v1 -o ./api/public"
     },
     "author": "Gaurav Walia",
     "license": "ISC",
