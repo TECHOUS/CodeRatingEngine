@@ -26,6 +26,9 @@ const rateLimiter = rateLimit({
 // see https://expressjs.com/en/guide/behind-proxies.html
 app.set('trust proxy', 1)
 
+// for hosting documentation on root
+app.use(express.static(path.join(__dirname, 'public')))
+
 // rate limiting middleware
 app.use(rateLimiter)
 
@@ -43,7 +46,6 @@ app.use(requestMethodHandler)
 
 // middleware for handling sample api routes
 app.use('/api/v1', require('../routes/api/v1/API'))
-app.use(express.static('docs'))
 
 // middleware to handle internal server errors due to implementation
 app.use(internalServerErrorHandler)
