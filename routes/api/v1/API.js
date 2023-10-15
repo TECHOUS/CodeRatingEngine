@@ -246,83 +246,123 @@ router.put(
 )
 
 /**
- * @endpoint /api/v1/searchUser?username=__
- * @description search and return the code rating for the specific user
+ * @api {GET} /api/v1/searchUser GET: searching the user name
+ * @apiName searchUser
+ * @apiDescription search and return the code rating for the specific user
+ * @apiVersion 1.0.0
+ * @apiBody {String} codeRatingEngineToken Access token received from randomCodes request
+ * @apiQuery {String} username Username to search
+ * @apiQuery {Boolean} sendContent Whether content is needed from the API or not
+ *
+ * @apiGroup searchUser
+ * @apiSuccess (200 Success Response) {Number} status 200 (Status Code)
+ * @apiSuccess (200 Success Response) {Array} userCodeBaseFiles CodeBaseFile
+ *
+ * @apiSuccess (CodeBaseFile) {String} _id unique mongo Id
+ * @apiSuccess (CodeBaseFile) {String} codeId unique code Id
+ * @apiSuccess (CodeBaseFile) {Number} codeRating current code rating of the file
+ * @apiSuccess (CodeBaseFile) {String} codeUrl file URL of the code file
+ * @apiSuccess (CodeBaseFile) {String} codeName file name of the code file
+ * @apiSuccess (CodeBaseFile) {String} userName user name of the contributed user
+ * @apiSuccess (CodeBaseFile) {String} content content of the code file
+ *
+ * @apiSuccessExample {json} Success Response Example
+ *
+ * {
+ *    "status": 200,
+ *    "userCodeBaseFiles": [
+ *        {
+ *            "_id": "60d877a541d44f4a2350d1b1",
+ *            "codeId": "55dfc162f8163243c9c7e155e9a9a26b9528be73",
+ *            "codeRating": 2384,
+ *            "codeUrl": "https://api.github.com/repos/..../CodeBase/SelectionSort.java?ref=master",
+ *           "codeName": "SelectionSort.java",
+ *            "userName": "GauravWalia19",
+ *            "__v": 0,
+ *            "content": "Scanner in = new Scanner(System.in)"
+ *        }
+ *    ]
+ * }
+ *
+ * @apiError (4xx Error Response) {Number} 429 Too many requests, please try again later!!!
+ * @apiError (4xx Error Response) {Number} 405 Method not Allowed
+ * @apiError (4xx Error Response) {Number} 404 No Code Base file found for the respective user
+ * @apiError (4xx Error Response) {Number} 401 Invalid Token !! Please send the valid token
+ * @apiError (4xx Error Response) {Number} 400 Bad Request
+ * @apiError (500 Error Response) {Number} 500 Internal Server Error
+ **/
+/**
  * @copyright TECHOUS
  * @since 4 July 2021
- * @method GET
+ * @url /api/v1/searchUser
  * @access private
- *
- * @param username
- * @param sendContent
- *
  * @author gaurav
- * @return
- * {
- *      status: 200,
- *      userCodeBaseFiles: []
- * }
  **/
 router.get(
     '/searchUser',
     authenticateAPI,
     searchValidator,
-    async (req, res) => {
-        const {username, sendContent} = req.query
+    async (req, res, next) => {
+        try {
+            const {username, sendContent} = req.query
 
-        // send the cache data according to username and sendContent
-        if (checkSearchUserCacheExpiry(username, sendContent)) {
-            return res.status(200).json(getSearchUserFromCache())
-        }
+            // send the cache data according to username and sendContent
+            if (checkSearchUserCacheExpiry(username, sendContent)) {
+                return res.status(200).json(getSearchUserFromCache())
+            }
 
-        let userCodeBaseFiles = await getCodeBaseFileForUser(username).catch(
-            (err) =>
+            let userCodeBaseFiles = await getCodeBaseFileForUser(
+                username,
+            ).catch((err) =>
                 res.status(500).json({
                     status: 500,
                     err,
                     message: 'Internal Server Error',
                 }),
-        )
-        if (userCodeBaseFiles.length <= 0) {
-            res.status(404).json({
-                status: 404,
-                message: 'No Code Base file found for the respective user',
-            })
-        } else if (sendContent === 'true') {
-            userCodeBaseFiles = userCodeBaseFiles.map(async (fileObj) => {
-                const content = await callGithubApiToGetFileContent(
-                    fileObj._doc.codeUrl,
-                )
-                const newFileObject = {
-                    ...fileObj._doc,
-                    content: content.data,
-                }
-                return newFileObject
-            })
-            Promise.all(userCodeBaseFiles).then((data) => {
-                // setting the cache
+            )
+            if (userCodeBaseFiles.length <= 0) {
+                res.status(404).json({
+                    status: 404,
+                    message: 'No Code Base file found for the respective user',
+                })
+            } else if (sendContent === 'true') {
+                userCodeBaseFiles = userCodeBaseFiles.map(async (fileObj) => {
+                    const content = await callGithubApiToGetFileContent(
+                        fileObj._doc.codeUrl,
+                    )
+                    const newFileObject = {
+                        ...fileObj._doc,
+                        content: content.data,
+                    }
+                    return newFileObject
+                })
+                Promise.all(userCodeBaseFiles).then((data) => {
+                    // setting the cache
+                    setSearchUserInCache({
+                        data: {
+                            status: 200,
+                            userCodeBaseFiles: data,
+                        },
+                        time: Date.now(),
+                        username,
+                        sendContent,
+                    })
+                    res.status(200).json(getSearchUserFromCache())
+                })
+            } else {
                 setSearchUserInCache({
                     data: {
                         status: 200,
-                        userCodeBaseFiles: data,
+                        userCodeBaseFiles,
                     },
                     time: Date.now(),
                     username,
                     sendContent,
                 })
                 res.status(200).json(getSearchUserFromCache())
-            })
-        } else {
-            setSearchUserInCache({
-                data: {
-                    status: 200,
-                    userCodeBaseFiles,
-                },
-                time: Date.now(),
-                username,
-                sendContent,
-            })
-            res.status(200).json(getSearchUserFromCache())
+            }
+        } catch (err) {
+            next(err)
         }
     },
 )

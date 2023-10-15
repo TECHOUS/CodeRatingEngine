@@ -9,25 +9,27 @@ function requestMethodHandler(req, res, next) {
     console.log(req.path)
     switch (req.path) {
         case '/api/v1/randomCodes':
+        case '/api/v1/searchUser':
             if (req.method !== 'GET') {
                 res.set('Allow', 'GET')
-                return res.status(405).json({
-                    status: 405,
-                    message: 'Method not allowed',
-                })
+                return methodNotAllowed(res)
             }
             break
         case '/api/v1/rateCode':
             if (req.method !== 'PUT') {
                 res.set('Allow', 'PUT')
-                return res.status(405).json({
-                    status: 405,
-                    message: 'Method not allowed',
-                })
+                return methodNotAllowed(res)
             }
             break
     }
     next()
+}
+
+function methodNotAllowed(res) {
+    return res.status(405).json({
+        status: 405,
+        message: 'Method not allowed',
+    })
 }
 
 function internalServerErrorHandler(err, req, res, next) {
