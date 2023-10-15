@@ -23,23 +23,23 @@ const {authenticateAPI} = require('../../../src/auth')
 const {updateValidator, searchValidator} = require('../../../src/validator')
 
 /**
- * @api {GET} /api/v1/randomCodes get the randomCodes
+ * @api {GET} /api/v1/randomCodes GET: get the random Code files
  * @apiName randomCodes
  * @apiDescription api to get the Random Code files present in code base
  * @apiVersion 1.0.0
  *
  * @apiGroup randomCodes
- * @apiSuccess (Success Response) {Number} status 200 (Status Code)
- * @apiSuccess (Success Response) {Object} codeObject1 First CodeObject
- * @apiSuccess (Success Response) {Object} codeObject2 Second CodeObject
- * @apiSuccess (Success Response) {String} accessToken Access Token for the secured APIs
+ * @apiSuccess (200 Success Response) {Number} status 200 (Status Code)
+ * @apiSuccess (200 Success Response) {Object} codeObject1 First CodeObject
+ * @apiSuccess (200 Success Response) {Object} codeObject2 Second CodeObject
+ * @apiSuccess (200 Success Response) {String} accessToken Access Token for the secured APIs
  * @apiSuccess (CodeObject) {String} codeId unique code Id
  * @apiSuccess (CodeObject) {Number} codeRating current code rating of the file
  * @apiSuccess (CodeObject) {String} codeUrl file URL of the code file
  * @apiSuccess (CodeObject) {String} codeName file name of the code file
  * @apiSuccess (CodeObject) {String} content content of the code file
  *
- * @apiSuccessExample {json} Example
+ * @apiSuccessExample {json} Success Response Example
  *
  * {
  *      "status": 200,
@@ -69,7 +69,7 @@ const {updateValidator, searchValidator} = require('../../../src/validator')
 /**
  * @copyright TECHOUS
  * @since 28 June 2021
- * @url http://localhost:5000/api/v1/randomCodes
+ * @url /api/v1/randomCodes
  * @access public
  * @author gaurav
  **/
@@ -152,51 +152,98 @@ router.get('/randomCodes', async (req, res, next) => {
 })
 
 /**
- * @endpoint /api/v1/rateCode
- * @description API to generate the rating for the winner and update
+ * @api {PUT} /api/v1/rateCode PUT: rate the code file
+ * @apiName rateCode
+ * @apiDescription api to rate the Random Code files present in code base
+ * @apiVersion 1.0.0
+ * @apiBody {Number} winner Marked winner 1 or 2
+ * @apiBody {String} codeId1 code Id for code 1
+ * @apiBody {String} codeId2 code Id for code 2
+ * @apiBody {String} codeRatingEngineToken Access token received from randomCodes request
+ *
+ * @apiGroup rateCode
+ * @apiSuccess (200 Success Response) {Object} update1 First UpdatedCodeObject
+ * @apiSuccess (200 Success Response) {Object} update2 Second UpdatedCodeObject
+ * @apiSuccess (200 Success Response) {Number} status 200 (Status Code)
+ * @apiSuccess (200 Success Response) {String} message Code Ratings are updated
+ * @apiSuccess (UpdatedCodeObject) {String} codeId unique code Id
+ * @apiSuccess (UpdatedCodeObject) {Number} codeRating updated code rating of the file
+ * @apiSuccess (UpdatedCodeObject) {String} codeUrl file URL of the code file
+ * @apiSuccess (UpdatedCodeObject) {String} codeName file name of the code file
+ * @apiSuccess (UpdatedCodeObject) {String} userName user name of the contributed user
+ *
+ * @apiSuccessExample {json} Success Response Example
+ *
+ * {
+ *   "update1": {
+ *       "codeId": "55dfc162f8163243c9c7e155e9a9a26b9528be73",
+ *       "codeRating": 2369,
+ *       "codeUrl": "https://api.github.com/repos/..../CodeBase/SelectionSort.java",
+ *       "codeName": "SelectionSort.java",
+ *       "userName": "GauravWalia19",
+ *   },
+ *   "update2": {
+ *       "codeId": "489e8fe91b2db73cc0f8f78b831fabb1b927d2b5",
+ *       "codeRating": 2235,
+ *       "codeUrl": "https://api.github.com/repos/..../CodeBase/LinearSearch.c",
+ *       "codeName": "LinearSearch.c",
+ *       "userName": "GauravWalia19",
+ *   },
+ *   "status": 200,
+ *   "message": "Code Ratings are updated"
+ * }
+ *
+ * @apiError (4xx Error Response) {Number} 429 Too many requests, please try again later!!!
+ * @apiError (4xx Error Response) {Number} 405 Method not Allowed
+ * @apiError (4xx Error Response) {Number} 401 Invalid Token !! Please send the valid token
+ * @apiError (4xx Error Response) {Number} 400 Bad Request
+ * @apiError (500 Error Response) {Number} 500 Internal Server Error
+ **/
+/**
  * @copyright TECHOUS
  * @since 4 July 2021
- * @method PUT
+ * @url /api/v1/rateCode
  * @access private
- *
  * @author gaurav
- * @return
- * {
- *      "update1":{},
- *      "update2":{},
- *      "status": 200,
- *      "message": ""
- * }
  **/
-router.put('/rateCode', authenticateAPI, updateValidator, async (req, res) => {
-    const {codeId1, codeId2, winner} = req.body
+router.put(
+    '/rateCode',
+    authenticateAPI,
+    updateValidator,
+    async (req, res, next) => {
+        try {
+            const {codeId1, codeId2, winner} = req.body
 
-    const codeBaseFiles = await getCodeBaseFilesRating(codeId1, codeId2)
-    let codeRating1 = 0
-    let codeRating2 = 0
-    codeBaseFiles.map((codeBaseFile) => {
-        if (codeBaseFile.codeId === codeId1) {
-            codeRating1 = codeBaseFile.codeRating
-        } else if (codeBaseFile.codeId === codeId2) {
-            codeRating2 = codeBaseFile.codeRating
+            const codeBaseFiles = await getCodeBaseFilesRating(codeId1, codeId2)
+            let codeRating1 = 0
+            let codeRating2 = 0
+            codeBaseFiles.map((codeBaseFile) => {
+                if (codeBaseFile.codeId === codeId1) {
+                    codeRating1 = codeBaseFile.codeRating
+                } else if (codeBaseFile.codeId === codeId2) {
+                    codeRating2 = codeBaseFile.codeRating
+                }
+            })
+            const updateResult = await rateCodeAndUpdate({
+                codeId1,
+                codeId2,
+                codeRating1,
+                codeRating2,
+                winner,
+            }).catch((e) => {
+                return res.status(400).json({
+                    status: 400,
+                    message: 'Bad Request!!!',
+                })
+            })
+            updateResult.status = 200
+            updateResult.message = 'Code Ratings are updated'
+            res.status(200).json(updateResult)
+        } catch (err) {
+            next(err)
         }
-    })
-    const updateResult = await rateCodeAndUpdate({
-        codeId1,
-        codeId2,
-        codeRating1,
-        codeRating2,
-        winner,
-    }).catch((err) => {
-        return res.status(400).json({
-            status: 400,
-            message: 'Bad Request!!!',
-        })
-    })
-    updateResult.status = 200
-    updateResult.message = 'Code Ratings are updated'
-    res.status(200).json(updateResult)
-})
+    },
+)
 
 /**
  * @endpoint /api/v1/searchUser?username=__

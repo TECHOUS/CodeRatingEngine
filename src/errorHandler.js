@@ -16,6 +16,16 @@ function requestMethodHandler(req, res, next) {
                     message: 'Method not allowed',
                 })
             }
+            break
+        case '/api/v1/rateCode':
+            if (req.method !== 'PUT') {
+                res.set('Allow', 'PUT')
+                return res.status(405).json({
+                    status: 405,
+                    message: 'Method not allowed',
+                })
+            }
+            break
     }
     next()
 }
