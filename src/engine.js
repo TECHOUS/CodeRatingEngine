@@ -7,7 +7,6 @@ const {v4: uuidv4} = require('uuid')
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true,
 })
 const db = mongoose.connection
 db.on('error', console.error.bind(console, 'Connection error:'))
@@ -68,7 +67,6 @@ function callGithubApiToGetFileContent(url) {
  * @return Promise
  **/
 function updateCodeBaseMongoDocument(codeId, codeRating) {
-    mongoose.set('useFindAndModify', false)
     return codeRatingModel.findOneAndUpdate({codeId}, {codeRating}, {new: true})
 }
 

@@ -1,6 +1,12 @@
 const express = require('express')
 const cors = require('cors')
 const rateLimit = require('express-rate-limit')
+const path = require('node:path')
+const {
+    badRequestHandler,
+    requestMethodHandler,
+    internalServerErrorHandler,
+} = require('../src/errorHandler')
 
 const app = express()
 
@@ -21,6 +27,9 @@ const rateLimiter = rateLimit({
 // see https://expressjs.com/en/guide/behind-proxies.html
 app.set('trust proxy', 1)
 
+// for hosting documentation on root
+app.use(express.static(path.join(__dirname, 'public')))
+
 // rate limiting middleware
 app.use(rateLimiter)
 
@@ -33,7 +42,16 @@ app.use(express.json())
 // express middleware handling the form parsing
 app.use(express.urlencoded({extended: false}))
 
+// middleware to handle wrong method types
+app.use(requestMethodHandler)
+
 // middleware for handling sample api routes
 app.use('/api/v1', require('../routes/api/v1/API'))
+
+// middleware to handle internal server errors due to implementation
+app.use(internalServerErrorHandler)
+
+// middleware to handle bad requests
+app.use(badRequestHandler)
 
 module.exports = app

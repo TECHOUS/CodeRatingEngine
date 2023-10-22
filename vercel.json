@@ -2,6 +2,8 @@
     "github": {
         "enabled": false
     },
-    "rewrites": [{ "source": "/api/(.*)", "destination": "/api/app.js" }],
+    "rewrites": [
+        { "source": "/(.*)", "destination": "/api/app.js" }
+    ],
     "outputDirectory": "./api"
 }
