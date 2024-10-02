@@ -19,14 +19,14 @@ const {
     setSearchUserInCache,
 } = require('../../../src/cache')
 // import middlewares
-const {authenticateAPI} = require('../../../src/auth')
+const {authenticatePutAPI, authenticateGetAPI} = require('../../../src/auth')
 const {updateValidator, searchValidator} = require('../../../src/validator')
 
 /**
  * @api {GET} /api/v1/randomCodes GET: get the random Code files
  * @apiName randomCodes
  * @apiDescription api to get the Random Code files present in code base
- * @apiVersion 1.0.0
+ * @apiVersion 1.20.0
  *
  * @apiGroup randomCodes
  * @apiSuccess (200 Success Response) {Number} status 200 (Status Code)
@@ -155,7 +155,7 @@ router.get('/randomCodes', async (req, res, next) => {
  * @api {PUT} /api/v1/rateCode PUT: rate the code file
  * @apiName rateCode
  * @apiDescription api to rate the Random Code files present in code base
- * @apiVersion 1.0.0
+ * @apiVersion 1.20.0
  * @apiBody {Number} winner Marked winner 1 or 2
  * @apiBody {String} codeId1 code Id for code 1
  * @apiBody {String} codeId2 code Id for code 2
@@ -208,7 +208,7 @@ router.get('/randomCodes', async (req, res, next) => {
  **/
 router.put(
     '/rateCode',
-    authenticateAPI,
+    authenticatePutAPI,
     updateValidator,
     async (req, res, next) => {
         try {
@@ -249,8 +249,13 @@ router.put(
  * @api {GET} /api/v1/searchUser GET: searching the user name
  * @apiName searchUser
  * @apiDescription search and return the code rating for the specific user
- * @apiVersion 1.0.0
- * @apiBody {String} codeRatingEngineToken Access token received from randomCodes request
+ * @apiVersion 1.20.0
+ * @apiHeader {String} Authorization Access token received from randomCodes request
+ * @apiHeaderExample {json} Request Header example
+ * {
+ *      "Authorization": "Bearer <ACCESS_TOKEN>"
+ * }
+ *
  * @apiQuery {String} username Username to search
  * @apiQuery {Boolean} sendContent Whether content is needed from the API or not
  *
@@ -300,7 +305,7 @@ router.put(
  **/
 router.get(
     '/searchUser',
-    authenticateAPI,
+    authenticateGetAPI,
     searchValidator,
     async (req, res, next) => {
         try {
