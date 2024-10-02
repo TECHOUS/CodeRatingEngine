@@ -19,7 +19,7 @@ const {
     setSearchUserInCache,
 } = require('../../../src/cache')
 // import middlewares
-const {authenticateAPI} = require('../../../src/auth')
+const {authenticatePutAPI, authenticateGetAPI} = require('../../../src/auth')
 const {updateValidator, searchValidator} = require('../../../src/validator')
 
 /**
@@ -208,7 +208,7 @@ router.get('/randomCodes', async (req, res, next) => {
  **/
 router.put(
     '/rateCode',
-    authenticateAPI,
+    authenticatePutAPI,
     updateValidator,
     async (req, res, next) => {
         try {
@@ -305,7 +305,7 @@ router.put(
  **/
 router.get(
     '/searchUser',
-    authenticateAPI,
+    authenticateGetAPI,
     searchValidator,
     async (req, res, next) => {
         try {

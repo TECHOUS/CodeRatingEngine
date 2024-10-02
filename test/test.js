@@ -41,7 +41,7 @@ describe('testing the code rating engine APIs', () => {
         request(app)
             .get('/api/v1/searchUser')
             .query({username: SEARCH_USER})
-            .send({codeRatingEngineToken: token})
+            .set('Authorization', `Bearer ${token}`)
             .expect(200)
             .end((err, res) => {
                 if (err) done(err)
