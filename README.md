@@ -1,6 +1,6 @@
 # :gear: Code Rating Engine
 
-Backend Engine that is used in [codemash](https://github.com/GauravWalia19/codemash) project for rating the open-source code
+Backend Engine that is used in [codemash](https://github.com/TECHOUS/codemash) project for rating the open-source code
 
 ![GitHub Release Date](https://img.shields.io/github/release-date/TECHOUS/coderatingengine)
 ![Vercel Deployment](https://img.shields.io/github/actions/workflow/status/TECHOUS/coderatingengine/Vercel%20Deployment.yml)
@@ -98,4 +98,4 @@ For API Endpoints and Documentation follow [this link](https://coderatingengine.
 
 ## Related Projects
 
-[codemash](https://github.com/GauravWalia19/codemash)
+[codemash](https://github.com/TECHOUS/codemash)
