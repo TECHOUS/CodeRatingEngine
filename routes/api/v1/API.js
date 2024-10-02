@@ -250,7 +250,12 @@ router.put(
  * @apiName searchUser
  * @apiDescription search and return the code rating for the specific user
  * @apiVersion 1.0.0
- * @apiBody {String} codeRatingEngineToken Access token received from randomCodes request
+ * @apiHeader {String} authorization Access token received from randomCodes request
+ * @apiHeaderExample {json} Request Header example
+ * {
+ *      "Authorization": "Bearer <ACCESS_TOKEN>"
+ * }
+ *
  * @apiQuery {String} username Username to search
  * @apiQuery {Boolean} sendContent Whether content is needed from the API or not
  *

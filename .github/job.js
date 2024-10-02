@@ -29,10 +29,7 @@ const getUserNameFromCodeBaseFile = (fileName) => {
 
 // function to connect to mongodb using mongoose
 const connectMongoDB = () => {
-    mongoose.connect(process.env.MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
+    mongoose.connect(process.env.MONGODB_URI)
     const db = mongoose.connection
     db.on('error', console.error.bind(console, 'Connection error:'))
     return db
@@ -58,13 +55,13 @@ const insertDataInMongo = (records) => {
 const callGithubCodeBaseAPI = () => {
     axios
         .get(
-            `https://api.github.com/repos/TECHOUS/${process.env.CODE_SRC}/contents/CodeBase`
+            `https://api.github.com/repos/TECHOUS/${process.env.CODE_SRC}/contents/CodeBase`,
         )
         .then((res) => {
             // get all the names from the files
             const filePromises = res.data.map((codeObject) => {
                 return getUserNameFromCodeBaseFile(
-                    `${process.env.CODE_SRC}/${codeObject.path}`
+                    `${process.env.CODE_SRC}/${codeObject.path}`,
                 )
             })
 
@@ -77,7 +74,7 @@ const callGithubCodeBaseAPI = () => {
                             fileObject.value.fileName,
                             fileObject.value.username,
                         ]
-                    })
+                    }),
                 )
 
                 const dataToInsert = res.data.map((data) => {
